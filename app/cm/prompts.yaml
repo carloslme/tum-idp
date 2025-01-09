@@ -1,0 +1,89 @@
+categorization:
+  task_description: You are an expert in analyzing code changes and predicting the most appropriate commit message type.
+  
+  output_formatting: |
+        Your classification must strictly follow json format. Don't give any analysis or other information:
+        {
+        "type": "<commit_type>"
+        }
+
+
+generation:
+  task_description: You are an expert in analyzing code changes, predicting the most appropriate commit message type, and write good commit message.
+
+  domain_knowledge: |
+        The commit types are as follows: 
+        feat: Introduces a new feature or functionality.
+        fix: Resolves a bug or error.
+        build: Changes that affect the build system or dependencies.
+        chore: Routine tasks or maintenance (e.g., cleaning up code, updating version & environment file).
+        docs: Changes to documentation only.
+        style: Code style changes (e.g., formatting, linting) that do not affect functionality.
+        refactor: Code changes that improve structure or readability without altering functionality or fixing a bug. This type is rare. Only use it if the code change is explicitly aimed at improving the codebase's design without introducing new features or fixing bugs.
+        test: Adding or modifying tests without changing production code.
+        
+  solution_guidance: |
+        When analyzing a code change to classify commit message type, follow this **classification_guideline**:
+        1. Read and understand the code change carefully.
+        2. Consider the primary intent or outcome of the change.
+        3. Choose the most appropriate commit type from the list above based on its intent. 
+        4. If there are a lot of newly added code (not document or env file, only code), it's possible to be classified to 'feat'.
+        5. If there's both new feature (newly added function) and bug fix in a code change, it should be classified to 'feat'
+        6. 'refactor' should only be used for structural improvements without new features or bug fixes.
+        7. 'style' should only be used for code style change without affecting the functionality.
+        8. 'docs' should only be used for markdown file.
+        9. Modification of .tsx files should be only in 'feat' or 'fix'.
+        10. Other types, such as feat and fix, are more common in practice.
+
+  guideline_for_cm: |
+        Following is the **generation_guideline** for format and content of the commit message generation.
+        - **Format:**
+        1. Start the subject line with the commit types, followed by a colon.
+            - Example: `feat: Add user authentication module`
+        2. Separate the subject from the body with a blank line.
+        3. Do not end the subject line with a period.
+        4. Use sentence case for the subject line (capitalize only the first letter and proper nouns).
+        5. Use the imperative mood in the subject line.
+        6. Wrap lines at 72 characters.
+
+        - **Content:**
+        1. **Subject Line:** Briefly summarizes the change, prefixed with the appropriate category.
+        2. **Body:**
+            2.1 **Reason of Change:** Provide a concise explanation of the reason for the change.
+            2.2 **What was done:** Describe what was changed to achieve the desired outcome.
+            2.3 **Impact/Benefits:** (Optional but recommended) Explain the impact or benefits of the change to provide additional context.
+
+        - Avoid unnecessary verbosity and do not include code snippets or stack traces.
+  
+  general_task: |
+        Your task is to generate a complete commit message including type and good content and format. You should do step by step
+        1. Analyze the code change.
+        2. Classify the code change to types mentioned above according to the **classification_guideline**.
+        3. Generate commit message accoring to the **generation_guideline**.
+
+
+  example_output: |
+        Example output:
+        {
+        "type": "fix"
+        }
+        Commit message: "fix: Fix data synchronization issue in SOC retrieval
+
+        Reason of Change: To ensure consistency between Meter and SoC data by aligning their timestamps, preventing discrepancies in displayed values.
+
+        What was done: Updated the Rtc class in rtc.py to filter SOC data based on the current timestamp before selecting relevant columns. Modified the data retrieval logic to ensure SOC data matches Meter data timestamps.
+
+        Impact/Benefits: This change eliminates data inconsistencies, enhancing data reliability and accuracy in energy market applications. It ensures that users receive consistent and trustworthy data for decision-making."
+        }
+
+  output_formatting: |
+        Your classification must strictly follow json format. Your commit message shouldn't follow json format. Don't give any analysis or other information:
+        {
+        "type": "<commit_type>"
+        }
+        Commit message: "<commit_message>"
+
+  input_code: Now give the result for the following code change
+
+
+
