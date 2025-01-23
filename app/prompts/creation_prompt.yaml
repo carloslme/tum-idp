@@ -1,0 +1,61 @@
+meta-prompt: |
+  I'm now working on creating a README.md file for a new repo. Please help me to create it section by section.  A file tree will be provided. Result should be in markdown.
+
+title: |
+  Project title: Introduce the project with a clear, compelling title and a brief description that explains what the project does and why it‘s useful. 
+  1. Briefly introduce the project in 1-2 sentences under the title
+
+a_title: |
+  Given is project name: 
+
+description: |
+  Give a detailed overview of the project’s functionality, including any unique aspects or primary goals. Explain the problem it solves or the gap it addresses.
+  1. Description should be in 2 paragraphs
+
+a_description: |
+  Given is a short description: 
+
+feature: |
+  List the main features of the project in bullet points, focusing on what makes it valuable. Highlight any advanced or standout capabilities.
+
+a_feature: |
+  Generate features.
+
+requirement: |
+  Clearly specify requirements, including the use of package managers or similar tools in the Installation section. 
+  1. Required Softwares
+
+a_requirement: |
+  Given are required softwares.
+
+installation: |
+  Guide users through setting up the project step-by-step, making it beginner-friendly and easy to follow. Use "####" to split each step
+  1. Clone repository
+  2. Create a virtual Python environment
+  3. Activate the environment
+
+a_installation: |
+  Given are IDE, Package Manager, git address, etc: 
+
+usage: |
+  Provide explanations for each example to clarify their purpose and usage.
+
+a_usage: |
+  Given is a short description.
+
+contact: |
+  1. Write a sentence to let users feel free to contact.
+  2. Generate contact section with "Email" & "Website".
+  3. You must keep all websites and email "[xxx...](http:...)"
+
+a_contact: |
+  Given are the email and website: 
+
+license: |
+  Generate the given license.
+
+a_license: |
+  Given is the license name.
+
+output-meta: |
+  Provide only the improved README.md content based on the guidelines above. Only include sections above. Following is the original section.
