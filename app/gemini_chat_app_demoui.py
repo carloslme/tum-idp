@@ -232,7 +232,7 @@ class GeminiChatAssistant(tk.Tk):
         model_label.pack(pady=10, padx=10, anchor='w')
 
         model_combo = ttk.Combobox(frame, textvariable=self.model_name, state="readonly")
-        model_combo['values'] = ["gemini-1.5-flash", "gemini-2.0-flash-exp"]  # Add available models here
+        model_combo['values'] = ["gemini-1.5-flash", "gemini-2.0-flash-exp","gemini-2.0-flash-thinking-exp-01-21"]  # Add available models here
         model_combo.current(0)
         model_combo.pack(pady=5, padx=10, anchor='w')
 
