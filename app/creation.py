@@ -1,9 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import re
 import yaml
-from utils import toolkit, file_tree
 import utils.llm_api as llm_api
 
 def convert_repo_to_txt():
@@ -30,6 +28,7 @@ def create_part(part_name, info):
         + prompts_repo[part_name] + "\n\n"
         + output_prompt + "\n\n"
     )
+    # During development I use together_ai since it's faster.
     result = llm_api.together_api(prompt)
 
     # add section name if LLM misses it.
@@ -37,3 +36,17 @@ def create_part(part_name, info):
         result = "## " + part_name[0].upper() + part_name[1:] + "\n\n" + result
 
     return result
+
+def create_feature(existed_feature, count):
+    with open("app/prompts/creation_prompt.yaml", 'r') as file:
+        prompts_repo = yaml.safe_load(file)
+    features = [entry for entry in existed_feature if entry.strip()]
+    meta_prompt = prompts_repo["meta-prompt"]
+    feature_prompt = prompts_repo["feature"] + "List 1 feature. It should be different from:" + "\n\n"
+    output_format = "You should only return feature and its description without any other sentences."
+    while (len(features) < count):
+        prompt = meta_prompt + feature_prompt + str(features) + "\n\n" + output_format
+        result = llm_api.together_api(prompt)
+        features.append(result)
+    print(features)
+    return features

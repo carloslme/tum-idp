@@ -3,21 +3,8 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import re
 import yaml
-from utils import toolkit, file_tree
+# from utils import toolkit, file_tree
 import utils.llm_api as llm_api
-
-def load_original_readme():
-    '''
-    To improve readme, an original version of readme must be loaded.
-    This function allows users to find and select readme file
-    :return: the path of readme file
-    '''
-    file_path = toolkit.select_file()
-    _, ext = os.path.splitext(file_path)
-    # To check whether this file is in markdown
-    if ext.lower() not in ['.md', '.markdown']:
-        raise Exception("Not markdown file")
-    return file_path
 
 def split_sections(file_path):
     '''
@@ -81,7 +68,7 @@ def check_section_existence(sections):
     empty_list = default_list
     return empty_list, suggestion_dict, ready_dict
 
-def improve_part(part_name, content):
+def improve_part(part_name, content, file_tree):
     '''
     Improve the given section by gemini.
     :param: part_name: name of section
@@ -95,6 +82,11 @@ def improve_part(part_name, content):
     meta_prompt = prompts_repo["meta-prompt"]
     output_prompt = prompts_repo["output-meta"]
     # title need both title_prompt and about_prompt
+    if file_tree:
+        file_tree_prompt = prompts_repo["file-tree"] + "\n\n" + file_tree
+    else:
+        file_tree_prompt = ""
+
     if part_name == "title":
         prompt = (meta_prompt + "\n\n"
                   + prompts_repo["title"] + "\n\n"
@@ -104,10 +96,12 @@ def improve_part(part_name, content):
     else:
         prompt = (meta_prompt + "\n\n"
             + prompts_repo.get(part_name, "improve it.") + "\n\n"
+            + file_tree_prompt + "\n\n"
             + output_prompt + "\n\n"
             + content)
         
     # During development I use together_ai since it's faster.
+    print(prompt)
     result = llm_api.together_api(prompt)
 
     # add section name if LLM misses it.
@@ -116,22 +110,3 @@ def improve_part(part_name, content):
 
     return result
 
-if __name__ == "__main__":
-    file_path = load_original_readme()
-    sections = split_sections(file_path)
-    empty_list, suggestion_dict, ready_dict = check_section_existence(sections)
-
-    # TODO add file tree inside the prompt to help LLM understand the repo
-    # repo_path = toolkit.select_folder()
-    # tree = file_tree.generate_file_tree(root_path=repo_path, max_depth=4, show_files=False)
-
-    default_list = ['title', 'description', 'feature', 'requirement', 'installation', 'usage', 'contact', 'license']
-    title = improve_part(default_list[0], ready_dict[default_list[0]])
-    description = improve_part(default_list[1], ready_dict[default_list[1]])
-    feature = improve_part(default_list[2], ready_dict[default_list[2]])
-    installation = improve_part(default_list[4], ready_dict[default_list[4]])
-    contact = improve_part(default_list[6], ready_dict[default_list[6]])
-    license = improve_part(default_list[7], ready_dict[default_list[7]])
-    content = title + description + feature + installation + contact + license
-
-    toolkit.export_markdown(content)

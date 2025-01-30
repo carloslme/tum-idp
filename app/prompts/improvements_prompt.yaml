@@ -1,0 +1,60 @@
+meta-prompt: |
+  I am working on improving the README.md file for a GitLab repository. I want you to improve the attached README file section by section. 
+  Ensure that all website links are formatted in Markdown as "[text...](http://...)". The output should be in markdown.
+
+title: |
+  Project Title: Introduce the project with a clear, compelling title and a brief description that explains what the project does and why it's useful. 
+
+  1. Keep the original title.
+
+about: |
+  About: Introduce the project with a clear, compelling title and a brief description that explains what the project does and why it's useful. 
+
+  1. Brief Overview: Write a short, impactful introduction that explains the core functionality of the project in 2-3 sentences. 
+
+  2. If there is information about affiliations, organizations, contributors, or related projects, retain them.
+
+  3. Keep this whole part simple, make brief overview and chair information in 2 paragraphs
+
+description: |
+  Description: Give a detailed overview of the project's functionality, including any unique aspects or primary goals. Explain the problem it solves or the gap it addresses.
+  
+  1. Improve these into 2 paragraphs.
+
+feature: |
+  Features: List the main features of the project in bullet points, focusing on what makes it valuable. Highlight any advanced or standout capabilities.
+
+  1. Give a subtitle for each point.
+
+requirement: |
+  Clearly specify requirements, including the use of package managers or similar tools in the Installation section. Write them in a bullet point list.
+
+installation: |
+  Installation Process: Guide users through setting up the project step-by-step, making it beginner-friendly and easy to follow.
+  If there are extra steps needed, such as choosing an environment in an IDE, mention them.
+
+usage: |
+  Usage:  Provide examples of how to use the project.
+
+  1. Specify which IDEs or tools users can utilize.
+
+  2. Provide explanations for each example to clarify their purpose and usage in a bullet point list.
+
+  If there are any important considerations or common issues users might face, mention them along with troubleshooting tips.
+
+contact: |
+  Contact: Offer contact information, including how to reach the maintainers or ask for help.
+
+  1. Improve the first sentence in original_README.md.
+
+  2. You must keep all websites.
+
+license: |
+  Keep the original content. 
+  - **If the original README.md does not contain license information, insert the following statement: "Not enough information for license."**
+
+output-meta: |
+  Provide only the improved README.md content based on the guidelines above. Only include sections above. Following is the original section.
+
+file-tree: |
+  You can also read file tree to better understand the repo. Following is the file tree.
