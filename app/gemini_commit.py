@@ -24,7 +24,7 @@ from utils.utils import (
 
 # ------------------------------ Configuration ------------------------------
 
-API_KEY = "AIzaSyDZ_NxfviMdMPJ6ug3zPslWGLaGXrQ5oCU"  # Replace with your actual Gemini API key
+API_KEY = "key"  # Replace with your actual Gemini API key
 MODEL_NAME = "gemini-2.0-flash-exp"   # Replace with your desired Gemini model
 
 ORIGINAL_OUTPUT_FILE = "original_commit_messages.json"  # JSON file for original commit messages
@@ -91,6 +91,51 @@ def get_all_commits(repo: git.Repo) -> list:
         logging.error(f"Failed to retrieve commits: {e}")
         print(f"Error: Failed to retrieve commits from the repository.")
         sys.exit(1)
+
+def choose_commit_range(commits: list) -> list:
+    """
+    Prompts the user to choose whether to process a subset or all commit messages.
+    Options:
+      1: First N commits (oldest commits) - you’ll be asked for the number of commits from the beginning.
+      2: Last N commits (newest commits) - you’ll be asked for the number of commits from the end.
+      3: All commits.
+    Returns the filtered list of commits.
+    """
+    while True:
+        choice = input(
+            "\nChoose the commit range to improve:\n"
+            "1: First N commits (oldest commits) - you’ll be asked for the number of commits from the beginning.\n"
+            "2: Last N commits (newest commits) - you’ll be asked for the number of commits from the end.\n"
+            "3: All commits\n"
+            "Enter 1, 2, or 3: "
+        ).strip()
+        if choice == "1":
+            num_str = input("Enter the number of commits to process from the beginning: ").strip()
+            try:
+                n = int(num_str)
+                if n < 1:
+                    print("Please enter a number greater than 0.")
+                    continue
+                return commits[:n]
+            except ValueError:
+                print("Invalid number, please try again.")
+                continue
+        elif choice == "2":
+            num_str = input("Enter the number of commits to process from the end: ").strip()
+            try:
+                n = int(num_str)
+                if n < 1:
+                    print("Please enter a number greater than 0.")
+                    continue
+                return commits[-n:]
+            except ValueError:
+                print("Invalid number, please try again.")
+                continue
+        elif choice == "3":
+            return commits
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+            continue
 
 def truncate_diff(diff: str, max_length=MAX_DIFF_LENGTH) -> str:
     """
@@ -227,11 +272,15 @@ def main():
     # Step 3: Get all commits
     commits = get_all_commits(repo)
 
-    # Step 4: Collect commit messages
+    # Step 4: Ask user to select a range of commits to process
+    commits = choose_commit_range(commits)
+    print(f"Processing {len(commits)} commits...")
+
+    # Step 5: Collect commit messages
     original_messages = {}
     ai_messages = {}
 
-    # Step 5: Process each commit
+    # Process each commit
     for commit in tqdm(commits, desc="Processing commits"):
         commit_hash = commit.hexsha
         original_message = commit.message.strip() if commit.message else "No original commit message provided."
