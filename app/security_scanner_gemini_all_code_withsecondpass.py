@@ -40,7 +40,8 @@ IMPROVED_SECURITY_OUTPUT_FILE = "improved_security_vulnerabilities.json"  # For 
 REPO_CONTENT_FILE = "repo_content.txt"  # Stores entire repository content as text
 
 # Constants for API rate limiting and retry logic
-RATE_LIMIT_SECONDS = 14
+RATE_LIMIT_SECONDS = 12
+RATE_LIMIT_SECONDS_SECOND_PASS = 12
 MAX_RETRIES = 3
 BATCH_SIZE = 5  # Process vulnerabilities in batches
 
@@ -350,7 +351,7 @@ def refine_individual_vulnerability(vuln: dict, file_path: str, repo_content: st
     try:
         model = model or gemini_model
         # Explicitly wait before the API call to help respect rate limits
-        time.sleep(RATE_LIMIT_SECONDS)
+        time.sleep(RATE_LIMIT_SECONDS_SECOND_PASS)
         response = model.generate_content(prompt)
         result = extract_json(response.text.strip())
         if result is None or (fallback_message in result.get("improved_description", "")):
@@ -367,7 +368,7 @@ def refine_individual_vulnerability(vuln: dict, file_path: str, repo_content: st
         error_str = str(e)
         if "429" in error_str:
             # Wait before giving up if quota error is detected.
-            time.sleep(RATE_LIMIT_SECONDS)
+            time.sleep(RATE_LIMIT_SECONDS_SECOND_PASS)
             return {
                 "is_false_positive": False,
                 "vulnerability_name": vuln.get("vulnerability_name", "Unknown Vulnerability"),
