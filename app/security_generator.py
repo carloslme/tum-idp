@@ -18,6 +18,11 @@ from utils.utils import (
     upload_file_to_gemini
 )
 
+# ------------------------------ Configuration ------------------------------
+
+API_KEY = "apikey"  # Replace with your actual Gemini API key 
+MODEL_NAME = "gemini-2.0-flash-thinking-exp-01-21"   # Replace with your desired Gemini model
+
 # ------------------------------ Prompt Definition ------------------------------
 
 PROMPT = """
@@ -101,12 +106,12 @@ def get_repository_selection() -> dict:
     Returns a dictionary with the selection type and corresponding path or URL.
     """
     while True:
-        choice = input("Do you want to work with a local or remote repository? (local/remote): ").strip().lower()
-        if choice == 'local':
+        choice = input("Do you want to use a (1) Local repository or (2) Remote repository? Enter 1 or 2: ").strip()
+        if choice == '1':
             repo_path_input = input("Enter the path to your local repository: ").strip()
             repo_path = get_local_repo_path(repo_path_input)
             return {'type': 'local', 'path': repo_path}
-        elif choice == 'remote':
+        elif choice == '2':
             repo_url_input = input("Enter the URL of the remote repository: ").strip()
             repo_url = get_remote_repo_url(repo_url_input)
             return {'type': 'remote', 'url': repo_url}
@@ -144,7 +149,7 @@ def main():
         OUTPUT_PATH = script_dir / "SECURITY.md"
 
     # Step 1: Configure Google Gemini API
-    configure_genai_api("AIzaSyDZ_NxfviMdMPJ6ug3zPslWGLaGXrQ5oCU")  # Replace with your actual API key
+    configure_genai_api(API_KEY)  # Replace with your actual API key
 
     # Step 2: Create a temporary directory for .txt files
     with tempfile.TemporaryDirectory() as temp_dir_name:
@@ -166,7 +171,7 @@ def main():
         prompt = PROMPT
 
         # Step 6: Generate SECURITY.md content
-        security_md_content = generate_security_md(readme_file, license_file, prompt, "gemini-1.5-flash")
+        security_md_content = generate_security_md(readme_file, license_file, prompt, MODEL_NAME)
 
         # Step 7: Save the generated SECURITY.md
         save_output(security_md_content, OUTPUT_PATH)

@@ -32,7 +32,7 @@ from utils.utils import (
 # API key and model settings
 API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL_NAME = "gemini-2.0-flash-thinking-exp-01-21"  # First pass model
-SECOND_PASS_MODEL = "gemini-2.0-flash-thinking-exp-01-21"        # Second pass model
+SECOND_PASS_MODEL = "gemini-2.0-flash-thinking-exp-01-21"  # Second pass model
 
 # Output file names and repository content file
 SECURITY_OUTPUT_FILE = "security_vulnerabilities.json"
@@ -79,6 +79,25 @@ def get_repo_source() -> dict:
                 continue
         else:
             print("Invalid input. Please enter 1 for Local or 2 for Remote repository.")
+
+def get_analysis_mode() -> str:
+    """
+    Prompt the user to choose the analysis mode.
+    Option 1: Single-agent analysis – one AI checks your code for vulnerabilities.
+    Option 2: Two-agent analysis – a second AI refines the initial results (this may take longer).
+    Returns "1" for single-agent or "2" for two-agent.
+    """
+    while True:
+        mode = input(
+            "Select analysis mode:\n"
+            "1. Single-agent analysis (one AI reviews your code for vulnerabilities).\n"
+            "2. Two-agent analysis (a second AI refines the initial results for improved accuracy, which may take longer).\n"
+            "Enter 1 or 2: "
+        ).strip()
+        if mode in ["1", "2"]:
+            return mode
+        else:
+            print("Invalid input. Please enter 1 or 2.")
 
 def initialize_local_repo(repo_path: Path) -> git.Repo:
     """
@@ -385,7 +404,6 @@ def refine_individual_vulnerability(vuln: dict, file_path: str, repo_content: st
             "manual_review": True
         }
 
-
 @retry(
     stop=stop_after_attempt(MAX_RETRIES),
     wait=wait_exponential(multiplier=1, min=4, max=30),
@@ -522,9 +540,10 @@ def main():
     - Sets up logging and configures the Gemini API.
     - Prompts for repository source and loads the repository.
     - Converts repository content to text and uploads the file to Gemini.
+    - Prompts for analysis mode (single-agent or two-agent) BEFORE running the first pass.
     - Performs first pass security analysis.
-    - Refines results in a second pass using a different model and the uploaded repository reference.
-    - Saves both first pass and refined reports as JSON.
+    - Optionally refines results in a second pass using a different model and the uploaded repository reference.
+    - Saves the report(s) as JSON.
     """
     script_dir = Path(__file__).parent.resolve()
     log_file = script_dir / "security_scanner.log"
@@ -556,7 +575,7 @@ def main():
     repo_content_output_path = script_dir / REPO_CONTENT_FILE
     repo_content = load_repo_content_to_text(repo, repo_name, repo_content_output_path)
     if not repo_content:
-        logging.error("Failed to load repository content for second pass refinement.")
+        logging.error("Failed to load repository content for analysis.")
         sys.exit(1)
     try:
         uploaded_repo = upload_file_to_gemini(repo_content_output_path)
@@ -564,19 +583,28 @@ def main():
     except Exception as e:
         logging.error(f"Failed to upload repository content to Gemini: {e}")
         sys.exit(1)
+
+    # Prompt user to choose analysis mode BEFORE running first pass analysis
+    analysis_mode = get_analysis_mode()
+
+    # Perform first pass security analysis
     security_report = analyze_security(repo, repo_name)
     security_report_path = script_dir / SECURITY_OUTPUT_FILE
     save_json(security_report, security_report_path, "security vulnerabilities (first pass)")
-    try:
-        gemini_model_second = genai.GenerativeModel(SECOND_PASS_MODEL)
-        logging.info(f"Using model '{SECOND_PASS_MODEL}' for second pass refinement.")
-    except Exception as e:
-        logging.error(f"Failed to configure second pass model '{SECOND_PASS_MODEL}': {e}")
-        sys.exit(1)
-    improved_security_report = refine_security_report(security_report, repo_content, repo_name, model=gemini_model_second, uploaded_repo=uploaded_repo)
-    improved_security_report_path = script_dir / IMPROVED_SECURITY_OUTPUT_FILE
-    save_json(improved_security_report, improved_security_report_path, "improved security vulnerabilities (second pass)")
-    logging.info("Security analysis and refinement process completed.")
+
+    if analysis_mode == "2":
+        try:
+            gemini_model_second = genai.GenerativeModel(SECOND_PASS_MODEL)
+            logging.info(f"Using model '{SECOND_PASS_MODEL}' for second pass refinement.")
+        except Exception as e:
+            logging.error(f"Failed to configure second pass model '{SECOND_PASS_MODEL}': {e}")
+            sys.exit(1)
+        improved_security_report = refine_security_report(security_report, repo_content, repo_name, model=gemini_model_second, uploaded_repo=uploaded_repo)
+        improved_security_report_path = script_dir / IMPROVED_SECURITY_OUTPUT_FILE
+        save_json(improved_security_report, improved_security_report_path, "improved security vulnerabilities (second pass)")
+        logging.info("Security analysis and refinement process completed with two agents.")
+    else:
+        logging.info("Security analysis completed using single-agent approach. Second pass refinement skipped.")
 
 if __name__ == "__main__":
     main()
