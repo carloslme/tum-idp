@@ -30,9 +30,9 @@ from utils.utils import (
 )
 
 # API key and model settings
-API_KEY = os.getenv("GEMINI_API_KEY")
+API_KEY = "Gemini_api_key"  # Replace with your actual Gemini API key
 MODEL_NAME = "gemini-2.0-flash-thinking-exp-01-21"  # First pass model
-SECOND_PASS_MODEL = "gemini-2.0-flash-thinking-exp-01-21"  # Second pass model
+SECOND_PASS_MODEL = "gemini 2.0 Pro Experimental 02-05"  # Second pass model
 
 # Output file names and repository content file
 SECURITY_OUTPUT_FILE = "security_vulnerabilities.json"
@@ -41,7 +41,7 @@ REPO_CONTENT_FILE = "repo_content.txt"  # Stores entire repository content as te
 
 # Constants for API rate limiting and retry logic
 RATE_LIMIT_SECONDS = 12
-RATE_LIMIT_SECONDS_SECOND_PASS = 12
+RATE_LIMIT_SECONDS_SECOND_PASS = 31
 MAX_RETRIES = 3
 BATCH_SIZE = 5  # Process vulnerabilities in batches
 
